@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="fastgo-externalsystemFlow" doc:id="60c4cb1b-8ce0-4de8-a71f-493a9e2d9837" >
+		<http:listener doc:name="Listener" doc:id="01f2916e-3dd5-4097-8322-dfff5970c304" config-ref="HTTP_Listener_config" path="/{http.listener.path}/{serviceType}">
+			<http:error-response statusCode="#[vars.statusCode as Number]">
+				<http:body ><![CDATA[#[vars.errorMsg default "Critical Error"]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<ee:transform doc:name="Transform Message" doc:id="8b06f2e1-5539-4bad-a8fd-fefbb7722039" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.headers.transactionId]]></ee:set-variable>
+				<ee:set-variable variableName="serviceType" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.uriParams.serviceType]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="9edd2861-aa3e-40f9-9271-dce424e50a88" message="Request Received for FastGo External System For TransactionId: #[vars.transactionId]"/>
+		<choice doc:name="Choice" doc:id="ad67eb5f-a98f-462d-994e-b5fa6595779f" >
+			<when expression='#[vars.serviceType == "routes"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="27f42008-e60d-4ae7-a09d-37f1a891d433" message="Routes flow called for FastGo External System For TransactionId: #[vars.transactionId]"/>
+				<flow-ref doc:name="Flow Reference" doc:id="01934998-90c3-4ee8-8782-920cf07babd1" name="FastGo-GetRoutes-ImplementationSub_Flow"/>
+			</when>
+			<when expression='#[vars.serviceType == "schedules"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="a12fa465-28c0-4027-9087-7b2edd5788c5" message="Schedule flow called for FastGo External System For TransactionId: #[vars.transactionId]" />
+				<flow-ref doc:name="Flow Reference" doc:id="011abe3e-e0ba-46f4-9992-a6ad3003fa38" name="FastGo-GetSchedules-ImplementationSub_Flow" />
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="2323d772-d9d8-46fa-aff6-37943c1315a0" message="URI Parameter Is Not Correct For FastGo External System For TransactionId: #[vars.transactionId]"/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="9371e6b2-420e-4f4d-9ea7-30437c8d95e9" message="Response Sent for FastGo External System For TransactionId: #[vars.transactionId]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="aa6382f7-97cb-41c3-90f9-33c5347ca262" >
+				<logger level="INFO" doc:name="Logger" doc:id="602fc179-a1bf-48cf-8942-c424f4ad8d6d" message="Error Occured for FastGo External System For TransactionId: #[vars.transactionId] reason: #[error.errorMessage] error Type: #[error.errorType]"/>
+				<ee:transform doc:name="Transform Message" doc:id="f1346b76-5c24-4b6c-ba82-f0b5362ff841" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="errorMsg" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ErrorCode": "XE1023",
+	"ErrorMessage": "Error in FastGo System"
+}]]></ee:set-variable>
+						<ee:set-variable variableName="statusCode" ><![CDATA[%dw 2.0
+output application/json
+---
+500]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
