@@ -7,7 +7,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<sub-flow name="FastGo-GetRoutes-ImplementationSub_Flow" doc:id="80a888b9-842e-441e-bc5e-b1a9579b2526" >
 		<db:select doc:name="Select" doc:id="ac99c2bd-af04-4b2b-801d-38b739ba1948" config-ref="Database_Config">
-			<db:sql ><![CDATA[select * from routes where companyname= 'FastGo']]></db:sql>
+			<db:sql ><![CDATA[select * from routes where companyName= 'FastGo']]></db:sql>
 		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="476dacc9-b74c-4fd9-8279-8311b825af83" >
 			<ee:message >

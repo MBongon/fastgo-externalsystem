@@ -7,7 +7,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<sub-flow name="FastGo-GetSchedules-ImplementationSub_Flow" doc:id="5ec62ccc-f5c2-4eab-a2f9-b8a588ff2b3d" >
 		<db:select doc:name="Select" doc:id="bc25884a-f9e4-4c85-9f34-71aa37de9853" config-ref="Database_Config">
-			<db:sql ><![CDATA[select * from schedules where companyname= 'FastGo']]></db:sql>
+			<db:sql ><![CDATA[select * from schedules where companyName= 'FastGo']]></db:sql>
 		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="53a11cb2-981b-4abc-85ec-a5a275d9273b" >
 			<ee:message >
